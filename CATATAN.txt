@@ -1,0 +1,298 @@
+SO
+form
+1. status ada di customer tipe pembayaran untuk identifikasi customer
+vip
+baru
+problem
+
+header
+SO
+Tanggal
+unit satuan
+diskon keseluruhan
+
+
+footer
+total amount
+diskon
+ongkir
+total global
+
+
+Produk
+uuid
+gambar
+No Produk
+Nama Produk (indo/china/english)
+harga kosongkan
+
+kondisinya user hanya bisa akses data sendiri dan data admin hanya bisa baca oleh user
+sesama user tidak bisa saling lihata data
+
+aktif/ no active
+
+SO
+tambah produk pakai popupf
+ada fitur tambah produk
+
+customer score untuk prioritas packing
+
+
+jadwal 20/05/2024
+Customer
+
+
+//untuk form kasir
+
+
+ // Card::make('Order Details')
+                //     ->schema([
+                //         Repeater::make('order_details')
+                //             ->relationship()
+                //             // ->relationship('salesDetails')
+                //             ->schema([
+                //                 Grid::make('')
+                //                     ->schema([
+                //                         Select::make('product_id')
+                //                             ->label('Product')
+                //                             ->options(Product::query()->pluck('nama_produk', 'id'))
+                //                             ->required()
+                //                             ->live(onBlur: true)
+                //                             ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
+                //                                 $productVariant = Product::where('id', $state)->first();
+                //                                 if ($productVariant) {
+                //                                     $harga = $productVariant->harga ?? 0;
+                //                                     $subtotal = $get('qty') * $harga;
+                //                                     $set('harga', $harga);
+                //                                     $set('subtotal', $subtotal);
+                //                                 } else {
+
+                //                                     $set('harga', 0);
+                //                                     $set('subtotal', 0);
+                //                                 }
+                //                             })
+                //                             ->distinct()
+                //                             ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                //                             ->columnSpan([
+                //                                 'md' => 1,
+                //                             ])
+
+                //                             ->searchable(),
+                //                         Select::make('satuan')
+                //                             ->label('Satuan')
+                //                             ->options([
+                //                                 'ctn' => 'Carton',
+                //                                 'box' => 'Box',
+                //                                 'lsn' => 'Lusin',
+                //                                 'pack' => 'Pack',
+                //                                 'pcs' => 'Pcs'
+                //                             ])
+                //                             ->required()
+                //                             ->live(onBlur: true)
+                //                             ->columnSpan(1),
+                //                         TextInput::make('qty')
+                //                             ->label('Quantity')
+                //                             ->default(1)
+                //                             ->live(onBlur: true)
+                //                             ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
+                //                                 $qty = $state;
+                //                                 $harga = $get('harga');
+                //                                 $subtotal = $harga * $qty;
+                //                                 $set('subtotal', $subtotal);
+                //                             })
+                //                             ->required()
+                //                             ->columnSpan(1),
+                //                         TextInput::make('harga')
+                //                             ->columnSpan(1)
+                //                             ->label('Unit Price')
+                //                             ->required(),
+                //                         TextInput::make('subtotal')
+                //                             ->numeric()
+                //                             ->reactive()
+                //                             ->columnSpan(1)
+                //                             ->label('Subtotal')
+                //                             ->numeric()
+                //                             ->default(function ($state, Forms\Set $set, Get $get) {
+                //                                 if ($get('qty') === '' && $get('harga')) {
+                //                                     $subttotal = $get('qty') * $get('harga');
+                //                                 } else {
+                //                                     $subttotal = 0;
+                //                                 }
+
+                //                                 return  number_format($subttotal, 2, '.', '');
+                //                             })
+                //                             ->disabled()
+
+                //                     ])
+                //                     ->columns(5)
+
+                //             ])
+                //             ->addActionLabel('Tambah Produk'),
+
+                //     ])
+
+
+                // Card::make('Order Details')
+                //     ->schema([
+                //         Repeater::make('order_details')
+                //             ->relationship()
+                //             ->schema([
+                //                 Grid::make('')
+                //                     ->schema([
+                //                         Select::make('satuan')
+                //                             ->label('Satuan')
+                //                             ->options([
+                //                                 'ctn' => 'Carton',
+                //                                 'box' => 'Box',
+                //                                 'bag' => 'Bag',
+                //                                 'card' => 'Card',
+                //                                 'lusin' => 'Lusin',
+                //                                 'pack' => 'Pack',
+                //                                 'pcs' => 'Pcs'
+                //                             ])
+                //                             ->required()
+                //                             ->live(onBlur: true)
+                //                             ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
+                //                                 $ketemu = Product::find($get('product_id'));
+
+                //                                 if ($ketemu) {
+                //                                     $harga = match ($state) {
+                //                                         'ctn' => $ketemu->price_ctn,
+                //                                         'box' => $ketemu->price_box,
+                //                                         'bag' => $ketemu->price_bag,
+                //                                         'card' => $ketemu->price_card,
+                //                                         'lusin' => $ketemu->price_lsn,
+                //                                         'pack' => $ketemu->price_pack,
+                //                                         'pcs' => $ketemu->price_pcs,
+                //                                         default => 0,
+                //                                     };
+                //                                     // dd($harga);
+                //                                     $subtotal = $get('qty') * $harga;
+                //                                     $set('harga', number_format($subtotal, 2, '.', ''));
+                //                                     $set('subtotal', number_format($subtotal, 2, '.', ''));
+                //                                 }
+                //                             })
+                //                             ->columnSpan(1),
+                //                         Select::make('product_id')
+                //                             ->label('Product')
+                //                             ->options(Product::query()->pluck('nama_produk', 'id'))
+                //                             ->required()
+                //                             ->live(onBlur: true)
+                //                             ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
+                //                                 $ketemu = Product::find($state);
+                //                                 if ($ketemu) {
+                //                                     $satuan = $get('satuan');
+                //                                     $harga = match ($satuan) {
+                //                                         'ctn' => $ketemu->price_ctn,
+                //                                         'box' => $ketemu->price_box,
+                //                                         'bag' => $ketemu->price_bag,
+                //                                         'card' => $ketemu->price_card,
+                //                                         'lusin' => $ketemu->price_lsn,
+                //                                         'pack' => $ketemu->price_pack,
+                //                                         'pcs' => $ketemu->price_pcs,
+                //                                         default => 0,
+                //                                     };
+                //                                     $subtotal = $get('qty') * $harga;
+                //                                     $set('harga', $harga);
+                //                                     $set('subtotal', $subtotal);
+                //                                 } else {
+                //                                     $set('harga', 0);
+                //                                     $set('subtotal', 0);
+                //                                 }
+                //                             })
+                //                             ->distinct()
+                //                             ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                //                             ->columnSpan(['md' => 1])
+                //                             ->searchable(),
+                //                         TextInput::make('qty')
+                //                             ->label('Quantity')
+                //                             ->default(1)
+                //                             ->live(onBlur: true)
+                //                             ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
+                //                                 $harga = $get('harga');
+                //                                 $subtotal = $harga * $state;
+                //                                 $set('subtotal', number_format($subtotal, 2, '.', ''));
+                //                             })
+                //                             ->required()
+                //                             ->columnSpan(1),
+                //                         TextInput::make('harga')
+                //                             ->mask(RawJs::make('$money($input)'))
+                //                             ->stripCharacters(',')
+                //                             ->columnSpan(1)
+                //                             ->label('Unit Price')
+                //                             ->required()
+                //                             ->disabled(),
+                //                         TextInput::make('subtotal')
+                //                             ->mask(RawJs::make('$money($input)'))
+                //                             ->stripCharacters(',')
+                //                             ->numeric()
+                //                             ->columnSpan(1)
+                //                             ->label('Subtotal')
+                //                             ->default(function ($state, Forms\Set $set, Get $get) {
+                //                                 return number_format($get('qty') * $get('harga'), 2, '.', '');
+                //                             })
+                //                             ->disabled(),
+                //                     ])
+                //                     ->columns(5),
+                //             ])
+                //             ->addActionLabel('Tambah Produk'),
+                //     ])
+
+
+// Dua Kolom
+Section::make()
+                    ->columns([
+                        'sm' => 6,
+                        'xl' => 6,
+                        '2xl' => 8,
+                    ])
+                    ->schema([
+                        Card::make('Data Produk')
+                            ->columnSpan([
+                                'md' => 4,
+                            ])
+                            ->schema([]),
+                        Card::make('Total Belanja')
+                            ->columnSpan([
+                                'md' => 4,
+                            ])
+                            ->schema([]),
+                    ]),
+
+
+//memanggil form lain dari form aktif
+//kategori selected
+Select::make('Kategori')
+    ->reactive()
+    ->relationship('customer')
+    ->options(function ($get) {
+        $customerId = $get('customer_id');
+        $customerClass = CustomerCategory::where('id', $customerId)->pluck('name', 'id')->first();
+        $selected = [$customerId => $customerClass];
+        return $selected;
+    })
+    ->createOptionForm(fn (Form $form) => CustomerCategoryResource::form($form) ?? [])
+    ->editOptionForm(fn (Form $form, $get) => CustomerCategoryResource::form($form)
+    ->model(CustomerCategory::find($get('customer_id'))) ?? [])
+
+    //menampilkan data saat pertama kali Load
+    Placeholder::make('amounts')
+    ->label('Total Belanja')
+    ->reactive()
+    ->content(function ($get) {
+        $sum = SalesDetail::where('sales_order_id', $get('id'))->sum('subtotal');
+        return number_format($sum) ?? 0;
+    }),
+TextInput::make('amounts')
+    ->readOnly()
+    ->label('Total Belanja')
+    ->reactive()
+    ->afterStateHydrated(function ($set, $get) {
+        $salesOrderId = $get('id');
+        if ($salesOrderId) {
+            $sum = SalesDetail::where('sales_order_id', $salesOrderId)->sum('subtotal');
+            $formattedSum = $sum ? number_format($sum) : 0;
+            $set('amounts', $formattedSum);
+        }
+    }),
+

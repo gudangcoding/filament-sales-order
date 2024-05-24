@@ -1,0 +1,196 @@
+<?php
+
+namespace App\Imports;
+
+
+use App\Models\Customer;
+use App\Models\MutasiBank;
+use App\Models\MutasiUnmatched;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow; // Import WithHeadingRow if you use headings
+
+class ImportMutasi implements ToModel, WithHeadingRow
+{
+
+
+    protected $customers;
+    protected $saldo;
+
+    public function __construct()
+    {
+        $this->customers = Customer::pluck('nama')->toArray();
+        $this->saldo = 0;
+        Log::info('ImportMutasi initialized.');
+    }
+
+    public function getColumns(): array
+    {
+        return [
+            'tanggal',
+            'keterangan',
+            'nama',
+            'cabang',
+            'jumlah',
+            'type',
+            'saldo',
+        ];
+    }
+
+    public function model(array $row)
+    {
+        // Ensure the row has at least the minimum number of columns
+        // if (count($row) < 7) {
+        //     Log::warning('Row skipped due to insufficient columns.', ['row' => $row]);
+        //     return null;
+        // }
+
+        $tanggal = $row[0] ?? null;
+        $keterangan = $row[1] ?? null;
+        $cabang = $row[2] ?? null;
+        $type = $row[3] ?? null;
+
+        // Check for null values in required fields
+        if (is_null($tanggal) || is_null($keterangan) ||  is_null($cabang)  || is_null($type)) {
+            Log::warning('Row skipped due to missing required values.', ['row' => $row]);
+            return null;
+        }
+
+        // Check if 'keterangan' contains a customer name
+        $foundCustomer = null;
+        foreach ($this->customers as $customer) {
+            if (stripos($keterangan, $customer) !== false) {
+                $foundCustomer = $customer;
+                break;
+            }
+        }
+
+        // // Log and skip if no customer found
+        if (!$foundCustomer) {
+            Log::info('Customer not found in description.', ['description' => $keterangan]);
+            return null;
+        }
+
+        // Convert 'jumlah' to an integer, handling different formats
+
+        // $string = "TRSF E-BANKING CR 2103/FTSCY/WS95031    4147000.00Helmi Sby     HELMI USMAN";
+        $string = $keterangan;
+        $regex = '/(\d+\.\d{2})$/';
+        $matches = array();
+        $jumlah = 0;
+        preg_match($regex, $string, $matches);
+
+        if (count($matches) > 0) {
+            $amount = $matches[1];
+            $jumlah = (int)str_replace(['.', ','], '', $amount);
+            // echo "Extracted amount: $amount";
+            // $jumlah = (int) $jumlah;
+        } else {
+            $jumlah = 0;
+        }
+
+
+
+        // // Accumulate saldo based on type
+        if ($type === 'CR') {
+            $this->saldo += $jumlah;
+        } elseif ($type === 'DR') {
+            $this->saldo -= $jumlah;
+        } else {
+            Log::warning('Invalid transaction type.', ['type' => $type]);
+            return null;
+        }
+
+        // Log::info('Row processed.', [
+        //     'customer' => $foundCustomer,
+        //     'amount' => $jumlah,
+        //     'type' => $type,
+        //     'saldo' => $this->saldo,
+        // ]);
+        $data = [
+            //     'team_id' => 'null', // Adjust based on your needs
+            //     'user_id' => 'null', // Adjust based on your needs
+            //     'tanggal' => 'null',
+            //     'keterangan' => 'null',
+            //     'customer' => 'null',
+            //     'cabang' => 'null',
+            //     'jumlah' => 'null',
+            //     'type' => 'null',
+            //     'saldo' => 'null',
+            'team_id' => null, // Adjust based on your needs
+            'user_id' => null, // Adjust based on your needs
+            'tanggal' => $tanggal,
+            'keterangan' => $keterangan,
+            'nama' => $foundCustomer,
+            'cabang' => $cabang,
+            'jumlah' => $jumlah,
+            'type' => $type,
+            'saldo' => $this->saldo,
+        ];
+        dd($data);
+        // return new MutasiBank($data);
+    }
+
+    private function saveUnmatchedRow(array $row)
+    {
+        // Handle unmatched rows
+        $data = [
+            'tanggal' => $row['tanggal'] ?? null,
+            'keterangan' => $row['keterangan'] ?? null,
+            'cabang' => $row['cabang'] ?? null,
+            'type' => $row['type'] ?? null,
+        ];
+        MutasiUnmatched::create($data);
+    }
+}
+
+
+// app/Imports/MutasiBankImport.php
+// namespace App\Imports;
+
+// use App\Models\MutasiBank;
+// use Maatwebsite\Excel\Concerns\ToModel;
+// use Maatwebsite\Excel\Concerns\WithHeadingRow;
+
+// class ImportMutasi implements ToModel, WithHeadingRow
+// {
+//     protected $customers;
+
+//     public function __construct(array $customers)
+//     {
+//         $this->customers = $customers;
+//     }
+
+//     public function model(array $row)
+//     {
+//         // Contoh struktur array $row:
+//         // [
+//         //     'tanggal' => '25/03/2024',
+//         //     'keterangan' => '25/03 KR OTOMATIS LLG-DANAMON ENI IDAYATI PLP WADUNGASRI JKT FUTIAN PCM0010046240325001169302962 0938 CR',
+//         //     'cabang' => 'JKT',
+//         //     'jumlah' => '1000000',
+//         //     'type' => 'CR',
+//         //     'saldo' => '5000000'
+//         // ]
+
+//         $foundCustomer = null;
+//         $keterangan = $row[1];
+
+//         foreach ($this->customers as $customer) {
+//             if (stripos($keterangan, $customer) !== false) {
+//                 $foundCustomer = $customer;
+//                 break;
+//             }
+//         }
+
+//         return new MutasiBank([
+//             'tanggal' => $row[0],
+//             'keterangan' => $row[1],
+//             'cabang' => $row[2],
+//             'jumlah' => $row[3],
+//             'type' => $row[4],
+//             'saldo' => $row[5],
+//             'nama' => $foundCustomer ?? $row[1]
+//         ]);
+//     }
+// }

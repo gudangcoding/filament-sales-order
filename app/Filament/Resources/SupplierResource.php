@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\SupplierResource\Pages;
+use App\Filament\Resources\SupplierResource\RelationManagers;
+use App\Models\Supplier;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class SupplierResource extends Resource
+{
+    protected static ?string $model = Supplier::class;
+    protected static ?string $ownershipRelationship = "supplier";
+    protected static ?string $tenantOwnershipRelationshipName = "team";
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Master Data';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                //
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                //
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListSuppliers::route('/'),
+            'create' => Pages\CreateSupplier::route('/create'),
+            'edit' => Pages\EditSupplier::route('/{record}/edit'),
+        ];
+    }
+
+    public static function tabs(): array
+    {
+        return [
+            'general' => [
+                'label' => 'Umum',
+                'icon' => 'heroicon-o-information-circle',
+                'fields' => [
+                    //
+                ],
+            ],
+            'details' => [
+                'label' => 'Detail',
+                'icon' => 'heroicon-o-annotation',
+                'fields' => [
+                    //
+                ],
+            ],
+            'settings' => [
+                'label' => 'Pengaturan',
+                'icon' => 'heroicon-o-cog',
+                'fields' => [
+                    //
+                ],
+            ],
+        ];
+    }
+}
