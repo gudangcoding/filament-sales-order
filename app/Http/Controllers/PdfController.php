@@ -24,7 +24,7 @@ class PdfController extends Controller
         $pdf = PDF::loadView('pdf', compact('salesOrder', 'groupedDetails', 'so_no'))
             ->setPaper('letter', 'potrait')
             ->setOptions(['dpi' => 300]);
-        // return $pdf->download("{$so_no}.pdf");
-        return $pdf->stream();
+        return $pdf->download("{$so_no}.pdf");
+        // return $pdf->stream();
     }
 }

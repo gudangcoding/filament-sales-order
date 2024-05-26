@@ -235,6 +235,7 @@ class SalesDetailRelationManager extends RelationManager
                         return $livewire->dispatch('refreshForm');
                     }),
             ])
+
             ->bulkActions([
 
                 Tables\Actions\BulkActionGroup::make([
@@ -318,6 +319,7 @@ class SalesDetailRelationManager extends RelationManager
 
     protected function updateSalesOrderTotals($salesOrderId)
     {
+
         $salesOrder = SalesOrder::find($salesOrderId);
 
         if ($salesOrder) {
