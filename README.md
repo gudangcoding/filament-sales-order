@@ -233,4 +233,21 @@ public static function shouldRegisterNavigation(): bool
 <li>
 buat faktur pakai escpos-php
 </li>
+<li>
+    <p>Tambahkan kode relasi untuk plugin shield C:\laragon\www\filament-erp\vendor\bezhansalleh\filament-shield\src\Resources\RoleResource.php</p>
+    <pre>
+    public static ?string $tenantOwnershipRelationshipName = 'team';<br>
+    protected static  ?string $tenantRelationshipName = 'role';
+    </pre>
+
+    <p>
+    dan kode ini di C:\laragon\www\filament-erp\vendor\spatie\laravel-permission\src\Models\Role.php
+    <pre>
+    public function team(): BelongsTo<br>
+    {<br>
+        return $this->belongsTo(\App\Models\Team::class);<br>
+    }
+    </pre>
+    </p>
+</li>
 </ol>
