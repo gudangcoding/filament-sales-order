@@ -296,3 +296,6 @@ TextInput::make('amounts')
         }
     }),
 
+
+    git config --global user.name "gudangcoding"
+
