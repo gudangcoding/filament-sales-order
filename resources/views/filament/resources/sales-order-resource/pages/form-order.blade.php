@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <x-filament-panels::form wire:submit="submit">
         {{ $this->form }}
-        {{ $this->formtotal }}
+        {{-- {{ $this->formtotal }} --}}
         <div>
             <x-filament::button type="submit" size="sm">
                 Simpan

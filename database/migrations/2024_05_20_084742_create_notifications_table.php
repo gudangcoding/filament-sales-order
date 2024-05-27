@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained();
             $table->string('type');
             $table->morphs('notifiable');
-            $table->text('data');
+            $table->json('data')->nullable(); //pgsql
+            // $table->text('data')->nullable();//mysl
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
