@@ -92,7 +92,7 @@ tambahkan ini pada Spatie\Permission\Models\Role<br>
 </li>
 <li>
 Tambahkan ini di .env untuk upload file<br>
-<pre>FILESYSTEM_DRIVER=local</pre>
+<pre>FILESYSTEM_DRIVER=public</pre>
 </li>
 <li>
     Setting faker ke bahasa indonesia<br>
@@ -117,7 +117,6 @@ Update the system packages to the latest versions available. Execute the followi
 
 Step 2. Download aaPanel script
 To download and set the aaPanel script executable, use the following commands:
-
 <p>
 <pre>wget -O install.sh http://www.aapanel.com/script/install-ubuntu_6.0_en.sh</pre>
 
@@ -187,18 +186,24 @@ RewriteRule ^(.*)$ public/$1 [L]<br>
 <p>SFTP/FTP sync</p>
 </li>
 <li>
-<h2>Remote File dari cursor/vscode dengan ekstensi SFTP dari Natizyskunk dan sftp FS dari Kelvin</h2>
-<p>Buat masing Masing config di volder .vscode/sftp.json dan ssh.json</p>
+<h2>Remote File dari cursor/vscode dengan ekstensi SFTP dari Natizyskunk</h2>
+<p>Buat masing Masing config di volder .vscode/sftp.json</p>
 <pre>
  "name": "Nama Proyek",
     "host": "ip/192.168.1.123",
-    "protocol": "ssh", //jika ftp ganti jadi ftp jika vps ganti jadi sftp
+    "protocol": "sftp", //ftp untuk hosting dan sftp untuk vps
     "port": 22,
     "secure": true,
     "username": "usernamevps",
     "password": "Password vps",
     "remotePath": "folder yang diremote",
-    "uploadOnSave": true
+    "uploadOnSave": true,
+    "useTempFile": false,
+    "openSsh": true,
+    "ignore": [
+        ".env",
+        "sftp.json"
+    ]
 </pre>
 <p>Aktifkan pengaturan write pada folder target di vps dengan atau sudo chmod 777
 </li>
@@ -207,8 +212,7 @@ RewriteRule ^(.*)$ public/$1 [L]<br>
 <p>Install Ekstensi "Database Client" dari cweijan lalu aktifkan icon database pada sidebar dan buat koneksi baru</p>
 </li>
 <li>
-<h3>Link pgsql</h3>
-https://www.enterprisedb.com/download-postgresql-binaries
+<p>Tambahkan via laragon pgsql Tools->Quick Add -> Postgresql</p>
 </li>
 <li>
 <h3>Jika bukan super_admin hide role menu</h3>
