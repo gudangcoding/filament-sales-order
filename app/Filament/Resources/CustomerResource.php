@@ -118,7 +118,7 @@ class CustomerResource extends Resource
                     ->tabs([
                         Tabs\Tab::make('Info')
                             ->schema([
-                                Repeater::make('contacts')
+                                Repeater::make('Kontak')
                                     ->relationship('contacts')
                                     ->schema([
                                         Select::make('sebutan')

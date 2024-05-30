@@ -1,0 +1,359 @@
+<?php
+
+namespace App\Filament\Resources\SalesOrderResource\Pages;
+
+use App\Filament\Resources\CustomerResource;
+use App\Filament\Resources\SalesOrderResource;
+use App\Models\Customer;
+use App\Models\CustomerCategory;
+use App\Models\CustomerClass;
+use App\Models\SalesDetail;
+use App\Models\SalesOrder;
+use Exception;
+use Filament\Card;
+use Filament\DatePicker;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Hidden;
+use Filament\Select;
+use Filament\Textarea;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\Page;
+use Filament\Support\Enums\MaxWidth;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Filament\Forms\Components\Component;
+
+class FormOrder extends Page implements HasForms
+{
+    use InteractsWithForms;
+    protected static string $resource = SalesOrderResource::class;
+
+    protected static string $view = 'filament.resources.sales-order-resource.pages.form-order';
+    public ?array $headerData = [];
+    public ?array $detailProduk = [];
+    public ?array $formTotal = [];
+    public function mount(): void
+    {
+        $this->form->fill();
+    }
+
+    public function getFormSchema(): array
+    {
+        $user = Auth::user();
+        $userId = $user->id;
+        return [
+            'formHeader',
+            'DetailSalesForm',
+            'formtotal',
+        ];
+    }
+
+    public function formHeader(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make('Profile Information')
+                    ->description('Update your account\'s profile information and email address.')
+                    ->schema([
+                        TextInput::make('name')
+                            ->required(),
+                        TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                    ]),
+            ])
+            ->model($this->getUser())
+            ->statePath('profileData');
+    }
+
+
+
+
+    public function DetailSalesForm(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make('Update Password')
+                    ->description('Ensure your account is using long, random password to stay secure.')
+                    ->schema([
+                        TextInput::make('Current password')
+                            ->password()
+                            ->required()
+                            ->currentPassword(),
+                        TextInput::make('password')
+                            ->password()
+                            ->required()
+                            ->rule(Password::default())
+                            ->autocomplete('new-password')
+                            ->dehydrateStateUsing(fn ($state): string => Hash::make($state))
+                            ->live(debounce: 500)
+                            ->same('passwordConfirmation'),
+                        TextInput::make('passwordConfirmation')
+                            ->password()
+                            ->required()
+                            ->dehydrated(false),
+                    ]),
+            ])
+            ->model($this->getUser())
+            ->statePath('passwordData');
+    }
+
+    protected function formtotal(): array
+    {
+        return [
+            TextInput::make('total')
+                ->label('Total')
+                ->reactive(),
+            TextInput::make('ongkir')
+                ->label('Ongkir')
+                ->reactive(),
+            TextInput::make('diskon')
+                ->label('Diskon')
+                ->reactive(),
+            TextInput::make('grand_total')
+                ->label('Grand Total')
+                ->reactive(),
+        ];
+    }
+    protected function getUser(): Authenticatable & Model
+    {
+        $user = Filament::auth()->user();
+        if (!$user instanceof Model) {
+            throw new Exception('The authenticated user object must be an Eloquent model to allow the profile page to update it.');
+        }
+        return $user;
+    }
+    protected function fillForms(): void
+    {
+        $data = $this->getUser()->attributesToArray();
+        $this->formHeader->fill($data);
+        $this->DetailSalesForm->fill();
+        $this->formtotal->fill();
+    }
+
+    protected function getContent()
+    {
+        $salesDetails = SalesDetail::where('sales_order_id', $this->record->id)->get();
+        return view('filament.resources.sales-order-resource.pages.form-order', [
+            'form' => $this->form,
+            'formtotal' => $this->formtotal,
+            // 'secondaryForm' => $this->makeForm()->schema($this->getSecondaryFormSchema())->model($this->record)->statePath('secondaryFormData'),
+            'record' => $this->record,
+            'relationManager' => $this->relationManager,
+            'salesDetails' => $salesDetails,
+        ])->render();
+    }
+
+    public function save(): void
+    {
+        echo "save";
+    }
+
+    public function updateHeaderAction(): void
+    {
+        $data = $this->formHeader($this->form)->getState();
+        $this->handleRecordUpdate($this->getUser(), $data);
+        $this->sendSuccessNotification();
+    }
+    public function updateDetailAction(): void
+    {
+        $data = $this->DetailSalesForm($this->form)->getState();
+        $this->handleRecordUpdate($this->getUser(), $data);
+        if (request()->hasSession() && array_key_exists('password', $data)) {
+            request()->session()->put(['password_hash_' . Filament::getAuthGuard() => $data['password']]);
+        }
+        $this->DetailSalesForm->fill();
+        $this->sendSuccessNotification();
+    }
+    public function updateTotalAction(): void
+    {
+        $data = $this->formtotal->getState();
+        $this->handleRecordUpdate($this->getUser(), $data);
+        if (request()->hasSession() && array_key_exists('password', $data)) {
+            request()->session()->put(['password_hash_' . Filament::getAuthGuard() => $data['password']]);
+        }
+        $this->formtotal->fill();
+        $this->sendSuccessNotification();
+    }
+    private function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $record->update($data);
+        return $record;
+    }
+
+    private function sendSuccessNotification(): void
+
+    {
+        Notification::make()
+            ->success()
+            ->title('sukses')
+            ->send();
+    }
+}
+
+//https://medium.com/@laravelprotips/personalizing-the-filament-profile-page-expanding-the-design-and-integrating-multiple-forms-62db7ca68343
+
+
+
+<x-filament-panels::page>
+    <x-filament-panels::form wire:submit="updateHeaderAction">
+        {{ $this->formHeader }}
+        <x-filament-panels::form.actions :actions="$this->updateHeaderAction()" />
+    </x-filament-panels::form>
+    <x-filament-panels::form wire:submit="updateDetailAction">
+        {{ $this->DetailSalesForm }}
+        <x-filament-panels::form.actions :actions="$this->updateDetailAction()" />
+    </x-filament-panels::form>
+    <x-filament-panels::form wire:submit="updateTotalAction">
+        {{ $this->formtotal }}
+        <x-filament-panels::form.actions :actions="$this->updateTotalAction()" />
+    </x-filament-panels::form>
+</x-filament-panels::page>
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+namespace App\Filament\Resources\SalesOrderResource\Pages;
+
+use App\Filament\Resources\SalesOrderResource;
+use App\Models\SalesOrder;
+use App\Models\SalesDetail;
+use App\Models\Pengiriman;
+use Exception;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\Page;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+
+class FormOrder extends Page implements HasForms
+{
+    use InteractsWithForms;
+
+    protected static string $resource = SalesOrderResource::class;
+    protected static string $view = 'filament.resources.sales-order-resource.pages.form-order';
+
+
+    public SalesOrder $salesOrder;
+
+    public function mount($salesOrderId = null): void
+    {
+        $this->salesOrder = SalesOrder::find($salesOrderId) ?? new SalesOrder();
+
+        if ($this->salesOrder->exists) {
+            $this->form->fill($this->salesOrder->toArray());
+        }
+    }
+    // public ?SalesOrder $salesOrder = null;
+
+    // public function mount(): void
+    // {
+    //     if ($this->salesOrder) {
+    //         $this->form->fill($this->salesOrder->toArray());
+    //     }
+    // }
+
+    // public function mount(?SalesOrder $salesOrder = null): void
+    // {
+    //     $this->salesOrder = $salesOrder ?? new SalesOrder();
+
+    //     if ($this->salesOrder->exists) {
+    //         $this->form->fill($this->salesOrder->toArray());
+    //     }
+    // }
+
+
+    protected function getFormSchema(): array
+    {
+        return [
+            Section::make('Header')
+                ->schema([
+                    TextInput::make('so_no')->required()->label('Sales Order No'),
+                    DatePicker::make('tanggal')->required()->label('Date'),
+                    Select::make('customer_id')->relationship('customer', 'name')->required()->label('Customer'),
+                    TextInput::make('team_id')->required()->label('Team ID'),
+                ]),
+            Section::make('Detail Produk')
+                ->schema([
+                    Repeater::make('order_details')
+                        ->relationship('order_details')
+                        ->schema([
+                            Select::make('product_id')->relationship('product', 'nama_produk')->required()->label('Product'),
+                            TextInput::make('satuan')->required()->label('Unit'),
+                            TextInput::make('harga')->numeric()->required()->label('Price'),
+                            TextInput::make('qty')->numeric()->required()->label('Quantity'),
+                            TextInput::make('subtotal')->numeric()->required()->label('Subtotal'),
+                            TextInput::make('koli')->required()->label('Koli'),
+                            TextInput::make('jumlah_koli')->numeric()->required()->label('Jumlah Koli'),
+                        ])
+                ]),
+            Section::make('Total')
+                ->schema([
+                    TextInput::make('subtotal')->numeric()->required()->label('Subtotal'),
+                    TextInput::make('diskon')->numeric()->required()->label('Discount'),
+                    TextInput::make('ongkir')->numeric()->required()->label('Shipping Cost'),
+                    TextInput::make('grand_total')->numeric()->required()->label('Grand Total'),
+                ]),
+            Section::make('Pengiriman')
+                ->schema([
+                    Select::make('pengiriman_id')->relationship('pengiriman', 'nama_ekspedisi')->required()->label('Shipping'),
+                    TextInput::make('plat_mobil')->label('Vehicle Plate'),
+                    TextInput::make('sopir')->label('Driver'),
+                    TextInput::make('no_hp')->label('Phone Number'),
+                    Textarea::make('alamat')->label('Address'),
+                    TextInput::make('nama_toko')->label('Store Name'),
+                ])
+        ];
+    }
+
+    protected function getUser()
+    {
+        $user = Auth::user();
+        if (!$user instanceof Model) {
+            throw new Exception('Authenticated user must be an Eloquent model.');
+        }
+        return $user;
+    }
+
+    public function save(): void
+    {
+        $data = $this->form->getState();
+        $this->salesOrder->update($data);
+        $this->sendSuccessNotification();
+    }
+
+    private function sendSuccessNotification(): void
+    {
+        Notification::make()->success()->title('Success')->send();
+    }
+}
+
+
+//https://medium.com/@laravelprotips/personalizing-the-filament-profile-page-expanding-the-design-and-integrating-multiple-forms-62db7ca68343
+

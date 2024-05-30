@@ -21,6 +21,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CustomerResource;
+use App\Filament\Resources\SalesOrderResource\Pages\FormOrder;
+use App\Filament\Resources\SalesOrderResource\Pages\CreateSalesOrderCustom;
+use App\Filament\Resources\SalesOrderResource\RelationManagers\PengirimanRelationManager;
 use App\Models\CustomerCategory;
 use App\Models\CustomerClass;
 use App\Models\SalesDetail;
@@ -85,8 +88,10 @@ class SalesOrderResource extends Resource
                                     ->label('Nama Pelanggan')
                                     ->placeholder('Pilih')
                                     ->searchable()
-                                    ->options(Customer::pluck('nama_customer', 'id'))
+                                    ->options(Customer::all()->pluck('nama_customer', 'id')->toArray())
                                     ->reactive()
+
+                                    // ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         // Mencari customer berdasarkan ID yang dipilih
                                         $customer = Customer::where('id', $state)->get()->first();
@@ -110,7 +115,7 @@ class SalesOrderResource extends Resource
                                             $set('catatan', null);
                                         }
                                     })
-                                    // ->relationship('customer', 'nama_customer')
+                                    ->relationship('customer', 'nama_customer')
                                     ->createOptionForm(fn (Form $form) => CustomerResource::form($form) ?? [])
                                     ->editOptionForm(fn (Form $form) => CustomerResource::form($form) ?? [])
                                     ->createOptionAction(fn ($action) => $action->modalWidth(MaxWidth::FiveExtraLarge)),
@@ -271,6 +276,13 @@ class SalesOrderResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                // Action::make('edit')
+                //     ->url(fn (SalesOrder $record): string => route('pdf.invoice', [
+                //         'tenant' => Filament::getTenant()->slug,
+                //         'id' => $record->id
+                //     ]))
+                //     ->openUrlInNewTab(),
+                // Tables\Actions\Action::make('Log Order')->url(fn ($record) => SalesOrderResource::getUrl('aktifitas', ['record' => $record]))
                 Tables\Actions\Action::make('pdf')
                     ->label('Download SO?')
                     ->color('success')
@@ -296,6 +308,7 @@ class SalesOrderResource extends Resource
         return [
             //
             SalesDetailRelationManager::class,
+            PengirimanRelationManager::class,
         ];
     }
 
@@ -303,8 +316,10 @@ class SalesOrderResource extends Resource
     {
         return [
             'index' => Pages\ListSalesOrders::route('/'),
-            'create' => Pages\CreateSalesOrder::route('/create'),
-            'edit' => Pages\EditSalesOrder::route('/{record}/edit'),
+            'create' => Pages\CreateSalesOrderCustom::route('/create'),
+            'edit' => Pages\FormOrder::route('/{record}/edit'),
+            'form-order' => Pages\FormOrder::route('/form-order/{record?}'),
+            // 'formOrder' => FormOrder::route('/{record}/edit'),
             // 'aktifitas' => Pages\ListSalesOrders::route('/{record}/aktifitas'),
         ];
     }

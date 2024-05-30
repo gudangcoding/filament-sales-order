@@ -1,18 +1,9 @@
 <x-filament-panels::page>
-    <x-filament-panels::form wire:submit="save" type="">
+    <x-filament-panels::form wire:submit.prevent="save">
         {{ $this->form }}
-       <div>
-         {{-- {{ $this->formtotal }} --}}
-       </div>
-       <div>
-         {{-- {{ $this->formtotal }} --}}
-       </div>
-
-        <div>
-            <x-filament::button type="submit" size="sm">
-                Simpan
-            </x-filament::button>
-        </div>
+        {{-- <x-filament-panels::form.actions :actions="['save']" /> --}}
+        <button type="button" wire:click="save" class="filament-button filament-button-primary">
+            Save
+        </button>
     </x-filament-panels::form>
-
 </x-filament-panels::page>
