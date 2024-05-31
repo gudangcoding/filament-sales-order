@@ -61,12 +61,14 @@ class EditSalesOrder extends EditRecord
         $slug = Filament::getTenant()->slug;
         Notification::make()
             ->success()
-            ->title('Ingin Print Data Ini?')
-            ->body('Lanjutkan')
+            ->title('Ingin Print SO ini?')
+            ->body('Akan membuka jendela baru untuk print')
             ->persistent()
             ->actions([
                 Action::make('salesOrder')
+                    ->label('Print')
                     ->button()
+                    ->color('success')
                     ->url(route('pdf.invoice', [
                         'tenant' => $slug,
                         'id' => $salesOrderId

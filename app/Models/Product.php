@@ -60,6 +60,10 @@ class Product extends Model implements HasMedia
     {
         return $this->hasMany(\App\Models\ProductVariant::class);
     }
+    public function satuan()
+    {
+        return $this->hasMany(Satuan::class);
+    }
 
     public function scopeActive($query)
     {

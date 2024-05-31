@@ -1,3 +1,6 @@
+@php
+    use Carbon\Carbon;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -74,10 +77,47 @@
 
         }
 
-        table,
-        tr,
-        td {
-            border-bottom: 1px solid gray;
+        /* Target tabel dengan kelas products */
+        table.products {
+            border-collapse: collapse;
+            width: 100%;
+            /* Atur lebar tabel sesuai kebutuhan */
+        }
+
+        table.products th,
+        table.products td {
+            border: 1px solid black;
+            /* Atur warna dan gaya border sesuai kebutuhan */
+            padding: 8px;
+            /* Atur padding sel sesuai kebutuhan */
+            text-align: left;
+            /* Atur perataan teks sesuai kebutuhan */
+        }
+
+        * Target tabel dengan kelas header-table */ table.header-table {
+            border-collapse: collapse;
+            width: 100%;
+            /* Atur lebar tabel sesuai kebutuhan */
+        }
+
+        /* Berikan border pada header tabel hanya di bagian bawah */
+        table.header-table thead th {
+            border-bottom: 2px solid black;
+            /* Atur warna dan gaya border bawah */
+            padding: 8px;
+            /* Atur padding sel sesuai kebutuhan */
+            text-align: left;
+            /* Atur perataan teks sesuai kebutuhan */
+        }
+
+        /* Pastikan body tabel tidak memiliki border */
+        table.header-table tbody td {
+            border: none;
+            /* Atur border sesuai kebutuhan, di sini kita hilangkan border */
+            padding: 8px;
+            /* Atur padding sel sesuai kebutuhan */
+            text-align: left;
+            /* Atur perataan teks sesuai kebutuhan */
         }
     </style>
 </head>
@@ -90,11 +130,17 @@
                 <td class="w-half">
                     <h2> {{ $salesOrder->customer->jenis_badan_usaha }} -
                         {{ $salesOrder->customer->nama_customer }} </h2>
+                    <h3 style="line-height: 50px;"> {{ $so_no }}</h3>
                 </td>
                 <td class="w-half">
                     <h3>Kepada:</h3>
-                    <table>
+                    <table class="header-table">
 
+                        <tr>
+                            <td>Tanggal</td>
+                            <td>:</td>
+                            <td> &nbsp;{{ Carbon::parse($salesOrder->tanggal)->format('d/m/Y') }}</td>
+                        </tr>
                         <tr>
                             <td>Nama</td>
                             <td>:</td>
@@ -102,19 +148,35 @@
                                 {{ $salesOrder->customer->contacts->first()->nama }}</td>
                         </tr>
                         <tr>
-                            <td>SO No</td>
-                            <td>:</td>
-                            <td> &nbsp;{{ $so_no }}</td>
-                        </tr>
                         <tr>
                             <td>Tanggal</td>
                             <td>:</td>
                             <td> &nbsp;{{ date('d/m/Y', strtotime($salesOrder->tanggal)) }}</td>
                         </tr>
                         <tr>
-                            <td>Alamat</td>
-                            <td>:</td>
-                            <td> &nbsp;{{ $salesOrder->customer->alamat->first()->alamat }}</td>
+                            <td>Pengiriman</td>
+                            <td>: </td>
+                            <td>
+                                @php
+                                    $pengiriman = $salesOrder->pengiriman->first();
+                                @endphp
+
+                                @if ($pengiriman->jenis_kirim === 'Ekspedisi')
+                                    {{ $pengiriman->jenis_kirim }} {{ $pengiriman->nama_ekspedisi }} via
+                                    {{ $pengiriman->via }} tujuan &nbsp;{{ $pengiriman->tujuan }}
+                                @elseif ($pengiriman->jenis_kirim === 'Titip')
+                                    {{ $pengiriman->jenis_kirim }} {{ $pengiriman->nama_toko }}
+                                    {{ $pengiriman->alamat }}
+                                @elseif ($pengiriman->jenis_kirim === 'Kirim')
+                                    {{ $pengiriman->jenis_kirim }} {{ $pengiriman->plat_mobil }}
+                                    {{ $pengiriman->sopir_no_hp }}
+                                @elseif ($pengiriman->jenis_kirim === 'Ambil Sendiri')
+                                    {{ $pengiriman->jenis_kirim }} - {{ $pengiriman->nama_pengambil }}
+                                    {{ $pengiriman->no_hp }}
+                                @else
+                                    Jenis kirim tidak diketahui
+                                @endif
+                            </td>
                         </tr>
                     </table>
                 </td>
@@ -131,7 +193,7 @@
                 <th style="text-align: left">Nama Produk</th>
                 <th style="text-align: center">Koli</th>
                 <th style="text-align: center">Satuan</th>
-                <th>Qty</th>
+                <th style="text-align: center">Qty</th>
                 <th style="text-align: right">Harga</th>
                 <th style="text-align: right">SubTotal</th>
             </tr>
@@ -164,10 +226,26 @@
                     </tr>
                 @endforeach
             @endforeach
+            <tr style="border-bottom: 1px solid gray">
+                <td colspan="6" style="text-align: right">Subtotal:</td>
+                <td style="text-align: right">{{ number_format($salesOrder->subtotal) }}</td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right">Diskon:</td>
+                <td style="text-align: right">{{ number_format($salesOrder->diskon) }}</td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right">Ongkir:</td>
+                <td style="text-align: right">{{ number_format($salesOrder->ongkir) }}</td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right">Total:</td>
+                <td style="text-align: right">{{ number_format($salesOrder->grand_total) }}</td>
+            </tr>
         </table>
     </div>
 
-    <div class="total">
+    {{-- <div class="total">
 
         <table class="tes">
             <tr style="border-bottom: 1px solid gray">
@@ -192,10 +270,10 @@
             </tr>
         </table>
 
-    </div>
+    </div> --}}
 
 
-    <div class="footer margin-top">
+    {{-- <div class="footer margin-top">
         <div style="width: 25%;float:left;margin:1px;height:300px;border:solid gray 1px;">
             <div style="height:30px;top:0;text-align:center">Yang Membuat</div>
             <div style="height:30px;padding-top:210px;text-align:center">{{ $salesOrder->user->first()->name }}</div>
@@ -213,7 +291,7 @@
             <div style="height:30px;padding-top:210px;text-align:center">(------------------------------)</div>
         </div>
 
-    </div>
+    </div> --}}
 </body>
 
 </html>

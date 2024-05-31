@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SalesOrderResource\RelationManagers;
 
 use App\Filament\Resources\ProductResource;
+use App\Filament\Resources\SatuanResource;
 use App\Models\Product;
 use App\Models\SalesDetail;
 use App\Models\SalesOrder;
@@ -74,6 +75,8 @@ class SalesDetailRelationManager extends RelationManager
                             $set('subtotal', number_format($subtotal, 2, '.', ''));
                         }
                     })
+                    ->createOptionForm(fn (Form $form) => SatuanResource::form($form) ?? [])
+                    ->editOptionForm(fn (Form $form) => SatuanResource::form($form) ?? [])
                     ->columnSpan(3),
 
                 Select::make('product_id')

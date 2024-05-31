@@ -28,6 +28,10 @@ class SalesOrder extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+    public function Pembayaran()
+    {
+        return $this->belongsTo(Pembayaran::class, 'sales_order_id');
+    }
 
     public function team(): BelongsTo
     {

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Satuan extends Model
 {
     use HasFactory;
-    protected $fillable = ["type", 'name'];
+    protected $fillable = ["product_id ", "parent_id", "type", 'name'];
     public function team(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Team::class);

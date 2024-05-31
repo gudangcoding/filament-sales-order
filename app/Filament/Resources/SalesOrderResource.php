@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\SalesOrderResource\Pages\FormOrder;
 use App\Filament\Resources\SalesOrderResource\Pages\CreateSalesOrderCustom;
+use App\Filament\Resources\SalesOrderResource\RelationManagers\PembayaranRelationManager;
 use App\Filament\Resources\SalesOrderResource\RelationManagers\PengirimanRelationManager;
 use App\Models\CustomerCategory;
 use App\Models\CustomerClass;
@@ -34,14 +35,15 @@ use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Get;
 use Filament\Support\Enums\MaxWidth;
-use Filament\Support\RawJs;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Livewire\Attributes\Reactive;
-use Filament\Notifications\Notification;
+
 use Filament\Tables\Actions\Action;
+use Filament\Support\RawJs;
 
 class SalesOrderResource extends Resource
 {
@@ -277,25 +279,15 @@ class SalesOrderResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                // Action::make('edit')
-                //     ->url(fn (SalesOrder $record): string => route('pdf.invoice', [
-                //         'tenant' => Filament::getTenant()->slug,
-                //         'id' => $record->id
-                //     ]))
-                //     ->openUrlInNewTab(),
-                // Tables\Actions\Action::make('Log Order')->url(fn ($record) => SalesOrderResource::getUrl('aktifitas', ['record' => $record]))
-                Tables\Actions\Action::make('pdf')
-                    ->label('Download SO?')
-                    ->color('success')
-                    ->icon('heroicon-o-arrow-down-circle')
-                    ->action(function (Model $record) {
-                        $salesOrderId = $record->id;
-                        $slug = Filament::getTenant()->slug;
-                        return redirect()->route('pdf.invoice', [
-                            'tenant' => $slug,
-                            'id' => $salesOrderId
-                        ]);
-                    }),
+                Action::make('salesOrder')
+                    ->button()
+                    ->label('Print')
+                    ->url(fn (SalesOrder $record): string => route('pdf.invoice', [
+                        'tenant' => Filament::getTenant()->slug,
+                        'id' => $record->id
+                    ]), shouldOpenInNewTab: true),
+
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -310,6 +302,7 @@ class SalesOrderResource extends Resource
             //
             SalesDetailRelationManager::class,
             PengirimanRelationManager::class,
+            PembayaranRelationManager::class,
         ];
     }
 
@@ -319,7 +312,6 @@ class SalesOrderResource extends Resource
             'index' => Pages\ListSalesOrders::route('/'),
             'create' => Pages\CreateSalesOrder::route('/create'),
             'edit' => Pages\EditSalesOrder::route('/{record}/edit'),
-            'form-order' => Pages\FormOrder::route('/form-order/{record?}'),
         ];
     }
 }

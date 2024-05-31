@@ -8,6 +8,7 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Filament\Resources\ProductResource\Widgets\ProductOverview;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Satuan;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\Team;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tab;
 use Filament\Forms\Components\Textarea;
@@ -73,11 +75,11 @@ class ProductResource extends Resource
                     ->columns(4)
                     ->schema([
                         FileUpload::make('gambar_produk')
+                            ->image()
+                            ->rules(['image', 'max:2048'])
                             ->disk('public')
-                            ->directory('product')
-                            ->image(),
-                        // ->required(),
-                        // SpatieMediaLibraryFileUpload::make('gambar_produk')->image(),
+                            ->visibility('public')
+                            ->directory('product'),
 
                         TextInput::make('kode_produk')
                             ->default('P-' . str_pad(Product::max('id') + 1, 4, '0', STR_PAD_LEFT))
@@ -122,91 +124,81 @@ class ProductResource extends Resource
                 Tabs::make('Tab')
 
                     ->tabs([
-                        Tabs\Tab::make('Harga')
-                            ->model(Product::class)
-
+                        Tabs\Tab::make('Satuan')
                             ->schema([
-                                TextInput::make('ctn')
-                                    ->label('Carton')
-                                    ->Default(1),
-                                TextInput::make('price_ctn')
-                                    ->label('Harga/Ctn')
-                                    ->Default(1),
-                                TextInput::make('box')
-                                    ->label('Box')
-                                    ->Default(1),
-                                TextInput::make('price_box')
-                                    ->label('Harga/box')
-                                    ->Default(1),
-                                TextInput::make('lusin')
-                                    ->label('Lusin')
-                                    ->Default(1),
-                                TextInput::make('price_lsn')
-                                    ->label('Harga/Lusin')
-                                    ->Default(1),
-                                TextInput::make('pack')
-                                    ->label('Pack')
-                                    ->Default(1),
-                                TextInput::make('price_pack')
-                                    ->label('Harga/Pack')
-                                    ->Default(1),
-                                TextInput::make('pcs')
-                                    ->label('Pcs')
-                                    ->Default(1),
-                                TextInput::make('price_pcs')
-                                    ->mask(RawJs::make('$money($input)'))
-                                    ->stripCharacters(',')
-                                    ->label('Harga/pcs')
-                                    ->Default(1),
+                                Repeater::make('satuan')
+                                    ->label('MultiLevelSatuan')
+                                    ->relationship('satuan')
+                                    ->schema([
+                                        Select::make('parent_id')
+                                            ->label('Satuan Utama')
+                                            ->options(Satuan::all()->pluck('name', 'id'))
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->label('Satuan')
+                                                    ->required()
+                                                    ->maxLength(255),
+                                            ])
+                                            ->createOptionAction(fn ($action) => $action->modalWidth('sm'))
+                                            ->createOptionUsing(function ($data) {
+                                                $existingSatuan = Satuan::where('name', $data['name'])->first();
 
+                                                if ($existingSatuan) {
+                                                    return "Satuan sudah ada";
+                                                } else {
+                                                    $newSatuan = Satuan::create($data);
+                                                    return $newSatuan->id;
+                                                }
+                                            })
+                                            ->columnSpan(1),
+                                        TextInput::make('name')
+                                            ->columnSpan(1)
+                                            ->label('Name'),
+                                        TextInput::make('qty')
+                                            ->columnSpan(1)
+                                            ->label('Qty'),
+                                        TextInput::make('harga')
+                                            ->columnSpan(1)
+                                            ->label('Harga'),
+                                    ])
+                                    ->columns(4)
+                                    ->addActionLabel('Tambah Satuan')
 
-                            ])->columns(10),
+                            ]),
 
                         Tabs\Tab::make('Inventori')
-                            ->model(Product::class) // target input data
-
+                            ->model(Product::class)
                             ->schema([
-                                // Field form terkait inventori
                                 TextInput::make('stok')->label('Stok'),
                                 TextInput::make('minimum_stok')->label('Stok Minimum'),
-                                // ... field form lainnya
                             ]),
 
                         Tabs\Tab::make('Penjualan')
-                            ->model(Product::class) // target input data
+                            ->model(Product::class)
 
                             ->schema([
-                                // Field form terkait penjualan
                                 TextInput::make('jumlah_terjual')->label('Jumlah Terjual'),
                                 TextInput::make('pendapatan_penjualan')->label('Pendapatan Penjualan'),
-                                // ... field form lainnya
+
                             ]),
 
                         Tabs\Tab::make('Pembelian')
-                            ->model(Product::class) // target input data
+                            ->model(Product::class)
 
                             ->schema([
-                                // Field form terkait pembelian
                                 TextInput::make('jumlah_dibeli')->label('Jumlah Dibeli'),
                                 TextInput::make('biaya_pembelian')->label('Biaya Pembelian'),
-                                // ... field form lainnya
                             ]),
 
                         Tabs\Tab::make('Bea Cukai')
-                            ->model(Product::class) // target input data
+                            ->model(Product::class)
 
                             ->schema([
-                                // Field form terkait bea cukai
                                 TextInput::make('bea_masuk')->label('Bea Masuk'),
                                 TextInput::make('bea_keluar')->label('Bea Keluar'),
-                                // ... field form lainnya
                             ]),
                     ])
                     ->columnSpanFull()
-
-
-
-
             ]);
     }
 

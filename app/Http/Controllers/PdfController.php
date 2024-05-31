@@ -15,7 +15,7 @@ class PdfController extends Controller
     public function invoice(Request $request, $tenant, $id)
     {
 
-        $salesOrder = SalesOrder::with(['customer.alamat', 'user', 'customer.contacts', 'team', 'order_details.product'])->findOrFail($id);
+        $salesOrder = SalesOrder::with(['customer.alamat', 'user', 'pengiriman', 'customer.contacts', 'team', 'order_details.product'])->findOrFail($id);
         $so_no = $salesOrder->so_no;
         // Kelompokkan orderDetails berdasarkan koli
         $groupedDetails = $salesOrder->order_details->groupBy('koli');
@@ -24,7 +24,7 @@ class PdfController extends Controller
         $pdf = PDF::loadView('pdf', compact('salesOrder', 'groupedDetails', 'so_no'))
             ->setPaper('letter', 'potrait')
             ->setOptions(['dpi' => 300]);
-        return $pdf->download("{$so_no}.pdf");
-        // return $pdf->stream();
+        // return $pdf->download("{$so_no}.pdf");
+        return $pdf->stream();
     }
 }
