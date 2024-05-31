@@ -19,6 +19,8 @@ return new class extends Migration
             $table->bigInteger('parent_id')->nullable();
             $table->string('type');
             $table->string('name');
+            $table->string('price');
+            $table->string('qty');
             $table->timestamps();
         });
     }

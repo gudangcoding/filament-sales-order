@@ -40,6 +40,7 @@ use Filament\Support\RawJs;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Facades\Log;
 
 class ProductResource extends Resource
 {
@@ -79,7 +80,10 @@ class ProductResource extends Resource
                             ->rules(['image', 'max:2048'])
                             ->disk('public')
                             ->visibility('public')
-                            ->directory('product'),
+                            ->directory('product')
+                            ->afterStateUpdated(function ($state) {
+                                Log::info('File upload state updated', ['state' => $state]);
+                            }),
 
                         TextInput::make('kode_produk')
                             ->default('P-' . str_pad(Product::max('id') + 1, 4, '0', STR_PAD_LEFT))

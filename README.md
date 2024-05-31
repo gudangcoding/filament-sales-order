@@ -117,6 +117,7 @@ Update the system packages to the latest versions available. Execute the followi
 
 Step 2. Download aaPanel script
 To download and set the aaPanel script executable, use the following commands:
+
 <p>
 <pre>wget -O install.sh http://www.aapanel.com/script/install-ubuntu_6.0_en.sh</pre>
 
@@ -253,5 +254,10 @@ buat faktur pakai escpos-php
     }
     </pre>
     </p>
+
+</li>
+<li>
+<p>jika terjadi gagal saat Upload file dengan FileUpload setting upload sementara di php.ini</p>
+<pre>upload_tmp_dir ="C:/laragon/tmp"</pre>
 </li>
 </ol>

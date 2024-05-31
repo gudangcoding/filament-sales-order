@@ -45,19 +45,13 @@ class SalesDetailRelationManager extends RelationManager
         return $form
             ->schema([
                 Select::make('satuan')
+                    //ambil dari model product relasi satuan
+                    ->relationship('product.satuan', 'name')
                     ->placeholder('Pilih')
-                    ->options([
-                        'ctn' => 'Carton',
-                        'box' => 'Box',
-                        'bag' => 'Bag',
-                        'card' => 'Card',
-                        'lusin' => 'Lusin',
-                        'pack' => 'Pack',
-                        'pcs' => 'Pcs'
-                    ])
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
+                        //cek apakah product_id sudah ada
                         $ketemu = Product::find($get('product_id'));
                         if ($ketemu) {
                             $harga = match ($state) {
