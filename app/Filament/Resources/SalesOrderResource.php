@@ -320,8 +320,6 @@ class SalesOrderResource extends Resource
             'create' => Pages\CreateSalesOrder::route('/create'),
             'edit' => Pages\EditSalesOrder::route('/{record}/edit'),
             'form-order' => Pages\FormOrder::route('/form-order/{record?}'),
-            // 'formOrder' => FormOrder::route('/{record}/edit'),
-            // 'aktifitas' => Pages\ListSalesOrders::route('/{record}/aktifitas'),
         ];
     }
 }
