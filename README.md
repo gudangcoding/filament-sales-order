@@ -257,7 +257,7 @@ buat faktur pakai escpos-php
 
 </li>
 <li>
-<p>jika terjadi gagal saat Upload file dengan FileUpload setting upload sementara di php.ini</p>
+<p>jika terjadi gagal saat Upload file dengan FileUpload setting upload sementara di php.ini baris 862</p>
 <pre>upload_tmp_dir ="C:/laragon/tmp"</pre>
 </li>
 </ol>
