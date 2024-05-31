@@ -163,7 +163,9 @@ class SalesDetailRelationManager extends RelationManager
                 TextColumn::make('product.nama_produk')
                     ->label('Nama Produk'),
                 ImageColumn::make('product.gambar_produk')
-                    ->label('Gambar'),
+                    ->label('Gambar')
+                    ->width(100)
+                    ->height(100),
                 TextColumn::make('harga')
                     ->label('Harga'),
                 TextColumn::make('satuan')
