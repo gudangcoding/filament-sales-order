@@ -43,7 +43,6 @@ class SalesDetailRelationManager extends RelationManager
     {
         return $form
             ->schema([
-
                 Select::make('satuan')
                     ->placeholder('Pilih')
                     ->options([
@@ -59,7 +58,6 @@ class SalesDetailRelationManager extends RelationManager
                     ->reactive()
                     ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
                         $ketemu = Product::find($get('product_id'));
-
                         if ($ketemu) {
                             $harga = match ($state) {
                                 'ctn' => $ketemu->price_ctn,
@@ -71,26 +69,23 @@ class SalesDetailRelationManager extends RelationManager
                                 'pcs' => $ketemu->price_pcs,
                                 default => 0,
                             };
-                            // dd($harga);
                             $subtotal = $get('qty') * $harga;
                             $set('harga', number_format($subtotal, 2, '.', ''));
                             $set('subtotal', number_format($subtotal, 2, '.', ''));
                         }
                     })
-                    ->columnSpan(1),
+                    ->columnSpan(3),
 
                 Select::make('product_id')
+                    ->relationship('product', 'nama_produk')
                     ->placeholder('Pilih')
                     ->options(function () {
-                        // Ambil semua id produk yang sudah ada di 'sales_detail'
                         $existingProductIds = SalesDetail::whereNotNull('id')->pluck('product_id')->toArray();
-                        // Kueri produk yang tidak termasuk dalam daftar id yang sudah ada
                         $products = Product::query()
                             ->whereNotIn('id', $existingProductIds)
                             ->pluck('nama_produk', 'id');
                         return $products;
                     })
-                    // Sisipkan logika lain seperti biasa
                     ->required()
                     ->live(onBlur: true)
                     ->afterStateUpdated(function ($state, Forms\Set $set, Get $get) {
@@ -115,13 +110,13 @@ class SalesDetailRelationManager extends RelationManager
                             $set('subtotal', 0);
                         }
                     })
-                    ->relationship('product', 'nama_produk')
+
                     ->createOptionForm(fn (Form $form) => ProductResource::form($form) ?? [])
                     ->editOptionForm(fn (Form $form) => ProductResource::form($form) ?? [])
                     ->distinct()
-                    // ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                    ->columnSpan(['sm' => 2])
+                    ->columnSpan(6)
                     ->searchable(),
+
                 TextInput::make('qty')
                     ->label('Quantity')
                     ->default(1)
@@ -132,27 +127,26 @@ class SalesDetailRelationManager extends RelationManager
                         $set('subtotal', $subtotal);
                     })
                     ->required()
-                    ->columnSpan(1),
+                    ->columnSpan(2),
+
                 TextInput::make('harga')
-                    // ->mask(RawJs::make('$money($input)'))
-                    // ->stripCharacters(',')
-                    ->columnSpan(1)
                     ->label('Unit Price')
                     ->required()
-                    ->readOnly(),
+                    // ->readOnly()
+                    ->columnSpan(3),
+
                 TextInput::make('subtotal')
-                    // ->mask(RawJs::make('$money($input)'))
-                    // ->stripCharacters(',')
                     ->numeric()
-                    ->columnSpan(1)
                     ->label('Subtotal')
                     ->default(function ($state, Forms\Set $set, Get $get) {
                         return $get('qty') * $get('harga');
                     })
-                    ->readOnly(),
-
-            ])->columns(5);
+                    // ->readOnly()
+                    ->columnSpan(3),
+            ])
+            ->columns(12);
     }
+
     public function table(Table $table): Table
     {
         return $table
@@ -168,7 +162,7 @@ class SalesDetailRelationManager extends RelationManager
 
                 TextColumn::make('product.nama_produk')
                     ->label('Nama Produk'),
-                ImageColumn::make('gambar_produk')
+                ImageColumn::make('product.gambar_produk')
                     ->label('Gambar'),
                 TextColumn::make('harga')
                     ->label('Harga'),

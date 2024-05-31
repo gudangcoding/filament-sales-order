@@ -11,6 +11,9 @@ use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Attributes\On;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Support\RawJs;
+// use Illuminate\Routing\Redirector;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class EditSalesOrder extends EditRecord
 {
@@ -56,9 +59,53 @@ class EditSalesOrder extends EditRecord
         $salesOrderId = $this->record->id;
         $slug = Filament::getTenant()->slug;
 
-        return redirect()->route('pdf.invoice', [
+        // return redirect()->route('pdf.invoice', [
+        //     'tenant' => $slug,
+        //     'id' => $salesOrderId
+        // ]);
+
+
+        // Filament::notify(
+        //     'success',
+        //     'Pesanan berhasil diubah',
+        //     'Pesanan berhasil diubah, silahkan tekan tombol dibawah untuk melihat invoice',
+        //     fn (): Redirector => redirect()->route('pdf.invoice', [
+        //         'tenant' => $slug,
+        //         'id' => $salesOrderId
+        //     ])
+        // )->options([
+        //     'position' => 'top-end',
+        //     'timer' => 10000,
+        //     'toast' => true,
+        //     'showConfirmButton' => true,
+        //     'onClose' => new RawJs('window.location.href = "' . route('sales-orders.index') . '"'),
+        // ]);
+
+
+
+        $message = 'Pesanan berhasil diubah';
+        echo "<script>
+        Swal.fire({
+            title: 'Success',
+            text: '" . $message . "',
+            icon: 'success',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Lihat Invoice'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '" . route('pdf.invoice', [
             'tenant' => $slug,
             'id' => $salesOrderId
-        ]);
+        ]) . "';
+            } else {
+                window.location.href = '" . route('pdf.invoice', [
+            'tenant' => $slug,
+            'id' => $salesOrderId
+        ]) . "';
+            }
+        })
+        </script>";
     }
 }

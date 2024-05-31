@@ -15,6 +15,7 @@ class SalesOrder extends Model
         'so_no',
         'team_id',
         'user_id',
+        'customer_id',
         'subtotal',
         'qty',
         'diskon',
@@ -35,7 +36,11 @@ class SalesOrder extends Model
 
     public function order_details()
     {
-        return $this->hasMany(SalesDetail::class);
+        return $this->hasMany(SalesDetail::class, 'sales_order_id');
+    }
+    public function SalesDetail()
+    {
+        return $this->hasMany(SalesDetail::class, 'sales_order_id');
     }
 
     public function customer()
@@ -49,6 +54,6 @@ class SalesOrder extends Model
 
     public function pengiriman()
     {
-        return $this->belongsTo(Pengiriman::class);
+        return $this->hasMany(Pengiriman::class, 'sales_order_id');
     }
 }

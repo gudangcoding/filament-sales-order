@@ -127,27 +127,35 @@
     <div class="margin-top">
         <table class="products">
             <tr style="border-bottom: solid gray 1px;">
-                <th style="text-align: center">Koli</th>
+                <th style="text-align: center">No</th>
                 <th style="text-align: left">Nama Produk</th>
+                <th style="text-align: center">Koli</th>
                 <th style="text-align: center">Satuan</th>
                 <th>Qty</th>
                 <th style="text-align: right">Harga</th>
                 <th style="text-align: right">SubTotal</th>
             </tr>
+            @php
+                $no = 0;
+            @endphp
             @foreach ($groupedDetails as $koli => $details)
                 @php
                     $rowCount = count($details);
                 @endphp
                 @foreach ($details as $index => $detail)
+                    @php
+                        $no++;
+                    @endphp
                     <tr class="items">
+                        <td style="text-align: center">{{ $no }}</td>
+                        <td style="text-align: left;">{{ $detail->product->nama_produk }}
+                        </td>
                         @if ($index == 0)
                             <td style="text-align: center;line-height:0;border:1px solid gray; font-weight: bold; font-size: 1.2em;"
                                 rowspan="{{ $rowCount }}">(1 Koli) {{ $detail->produk }}</td>
                         @endif
-                        <td style="text-align: left;">{{ $detail->product->nama_produk }}
-                        </td>
                         <td style="text-align: center">{{ $detail->satuan }}</td>
-                        <td style="text-align: center">{{ $detail->qty }}</td>
+                        <td style="text-align: center">{{ $detail->qty }}/{{ $detail->satuan }}</td>
                         <td style="text-align: right">{{ number_format($detail->harga) }}</td>
 
                         <td style="text-align: right;border-right:1px solid gray;">

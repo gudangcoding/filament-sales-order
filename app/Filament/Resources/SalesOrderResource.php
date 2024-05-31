@@ -80,11 +80,12 @@ class SalesOrderResource extends Resource
                                         $salesOrderId = $get('id');
                                         if ($salesOrderId) {
                                             $salesOrder = SalesOrder::find($salesOrderId);
-                                            $salesOrder->so_no = 'SO-' .  date('ymd') . "-" . str_pad($salesOrderId, 4, '0', STR_PAD_LEFT);
+                                            $salesOrder->so_no = 'SO-' .  date('ymd') . "-" .  date('H') . "-" . str_pad($salesOrderId, 4, '0', STR_PAD_LEFT);
                                             $salesOrder->save();
                                         }
                                     }),
                                 Select::make('customer_id')
+                                    ->relationship('customer', 'nama_customer')
                                     ->label('Nama Pelanggan')
                                     ->placeholder('Pilih')
                                     ->searchable()
@@ -115,7 +116,7 @@ class SalesOrderResource extends Resource
                                             $set('catatan', null);
                                         }
                                     })
-                                    ->relationship('customer', 'nama_customer')
+
                                     ->createOptionForm(fn (Form $form) => CustomerResource::form($form) ?? [])
                                     ->editOptionForm(fn (Form $form) => CustomerResource::form($form) ?? [])
                                     ->createOptionAction(fn ($action) => $action->modalWidth(MaxWidth::FiveExtraLarge)),
@@ -316,8 +317,8 @@ class SalesOrderResource extends Resource
     {
         return [
             'index' => Pages\ListSalesOrders::route('/'),
-            'create' => Pages\CreateSalesOrderCustom::route('/create'),
-            'edit' => Pages\FormOrder::route('/{record}/edit'),
+            'create' => Pages\CreateSalesOrder::route('/create'),
+            'edit' => Pages\EditSalesOrder::route('/{record}/edit'),
             'form-order' => Pages\FormOrder::route('/form-order/{record?}'),
             // 'formOrder' => FormOrder::route('/{record}/edit'),
             // 'aktifitas' => Pages\ListSalesOrders::route('/{record}/aktifitas'),
