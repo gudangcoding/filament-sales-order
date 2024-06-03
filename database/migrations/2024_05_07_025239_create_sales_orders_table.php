@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('team_id')->nullable()->constrained();
             $table->foreignId('user_id')->nullable()->constrained();
             $table->foreignId('customer_id')->nullable()->constrained();
-            $table->string('customer_class_id')->nullable();
-            $table->string('customer_category_id')->nullable();
+            $table->string('customer_class_id')->nullable()->constrained();
+            $table->string('customer_category_id')->nullable()->constrained();
             $table->decimal('subtotal', 8, 2)->nullable();
             $table->integer('qty')->nullable();
             $table->decimal('diskon', 18, 2)->nullable();

@@ -51,7 +51,7 @@ class ProductResource extends Resource
     protected static ?string $tenantRelationshipName = 'produk';
     protected static ?string $navigationLabel = 'Produk';
     protected static ?string $recordTitleAttribute = 'name'; //untuk global search
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-cube';
     protected static ?string $navigationGroup = 'Master Data';
     public static function getNavigationBadge(): ?string
     {
@@ -77,13 +77,9 @@ class ProductResource extends Resource
                     ->schema([
                         FileUpload::make('gambar_produk')
                             ->image()
-                            ->rules(['image', 'max:2048'])
                             ->disk('public')
                             ->visibility('public')
-                            ->directory('product')
-                            ->afterStateUpdated(function ($state) {
-                                Log::info('File upload state updated', ['state' => $state]);
-                            }),
+                            ->directory('product'),
 
                         TextInput::make('kode_produk')
                             ->default('P-' . str_pad(Product::max('id') + 1, 4, '0', STR_PAD_LEFT))
@@ -95,27 +91,12 @@ class ProductResource extends Resource
                             ->label('Nama Produk (ID)')
                             ->required(),
                         Select::make('category_id')
-                            ->label('Kategori Produk')
-                            ->placeholder('Pilih')
-                            ->searchable()
-                            ->options(Category::all()->pluck('name', 'id'))
-                            ->createOptionForm([
-                                TextInput::make('name')
-                                    ->label('Kategori')
-                                    ->required()
-                                    ->maxLength(255),
-                            ])
-                            ->createOptionAction(fn ($action) => $action->modalWidth('sm'))
-                            ->createOptionUsing(function ($data) {
-                                $existingCategory = Category::where('name', $data['name'])->first();
+                            ->relationship('category', 'name')
+                            ->distinct()
+                            ->createOptionForm(fn (Form $form) => CategoryResource::form($form) ?? [])
+                            ->editOptionForm(fn (Form $form, $get) => CategoryResource::form($form) ?? [])
 
-                                if ($existingCategory) {
-                                    return "Kategori sudah ada";
-                                } else {
-                                    $newCategory = Category::create($data);
-                                    return $newCategory->id;
-                                }
-                            }),
+                            ->label('Kategori Produk'),
                         Textarea::make('deskripsi')->label('Deskripsi'),
                         Toggle::make('aktif')
                             ->label('Aktif'),
@@ -130,6 +111,17 @@ class ProductResource extends Resource
                     ->tabs([
                         Tabs\Tab::make('Satuan')
                             ->schema([
+                                TextInput::make('nama_produk')
+                                    ->label('Nama Produk')
+                                    ->required(),
+
+                                Textarea::make('deskripsi')
+                                    ->label('Deskripsi'),
+
+                                Repeater::make('varians'),
+
+
+
                                 Repeater::make('satuan')
                                     ->label('MultiLevelSatuan')
                                     ->relationship('satuan')
@@ -154,14 +146,18 @@ class ProductResource extends Resource
                                                     return $newSatuan->id;
                                                 }
                                             })
+                                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                            ->distinct()
                                             ->columnSpan(1),
                                         TextInput::make('name')
                                             ->columnSpan(1)
                                             ->label('Name'),
                                         TextInput::make('qty')
                                             ->columnSpan(1)
+                                            ->default(1)
                                             ->label('Qty'),
                                         TextInput::make('harga')
+                                            ->default(1)
                                             ->columnSpan(1)
                                             ->label('Harga'),
                                     ])
@@ -173,16 +169,24 @@ class ProductResource extends Resource
                         Tabs\Tab::make('Inventori')
                             ->model(Product::class)
                             ->schema([
-                                TextInput::make('stok')->label('Stok'),
-                                TextInput::make('minimum_stok')->label('Stok Minimum'),
+                                TextInput::make('stok')
+                                    ->default(1)
+                                    ->label('Stok'),
+                                TextInput::make('minimum_stok')
+                                    ->default(1)
+                                    ->label('Stok Minimum'),
                             ]),
 
                         Tabs\Tab::make('Penjualan')
                             ->model(Product::class)
 
                             ->schema([
-                                TextInput::make('jumlah_terjual')->label('Jumlah Terjual'),
-                                TextInput::make('pendapatan_penjualan')->label('Pendapatan Penjualan'),
+                                TextInput::make('jumlah_terjual')
+                                    ->default(1)
+                                    ->label('Jumlah Terjual'),
+                                TextInput::make('pendapatan_penjualan')
+                                    ->default(1)
+                                    ->label('Pendapatan Penjualan'),
 
                             ]),
 
@@ -190,16 +194,24 @@ class ProductResource extends Resource
                             ->model(Product::class)
 
                             ->schema([
-                                TextInput::make('jumlah_dibeli')->label('Jumlah Dibeli'),
-                                TextInput::make('biaya_pembelian')->label('Biaya Pembelian'),
+                                TextInput::make('jumlah_dibeli')
+                                    ->default(1)
+                                    ->label('Jumlah Dibeli'),
+                                TextInput::make('biaya_pembelian')
+                                    ->default(1)
+                                    ->label('Biaya Pembelian'),
                             ]),
 
                         Tabs\Tab::make('Bea Cukai')
                             ->model(Product::class)
 
                             ->schema([
-                                TextInput::make('bea_masuk')->label('Bea Masuk'),
-                                TextInput::make('bea_keluar')->label('Bea Keluar'),
+                                TextInput::make('bea_masuk')
+                                    ->default(1)
+                                    ->label('Bea Masuk'),
+                                TextInput::make('bea_keluar')
+                                    ->default(1)
+                                    ->label('Bea Keluar'),
                             ]),
                     ])
                     ->columnSpanFull()

@@ -51,6 +51,8 @@ class SalesOrder extends Model
     {
         return $this->belongsTo(Customer::class, 'customer_id');
     }
+
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -59,5 +61,16 @@ class SalesOrder extends Model
     public function pengiriman()
     {
         return $this->hasMany(Pengiriman::class, 'sales_order_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            // unset($model->customer_class_id, $model->customer_category_id, $model->catatan);
+            //abaikan catatan saat menyimpan
+            unset($model->catatan);
+        });
     }
 }

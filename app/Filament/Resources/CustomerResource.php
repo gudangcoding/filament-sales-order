@@ -22,6 +22,8 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use App\Models\Alamat;
+use Filament\Forms\Components\Builder;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\DB;
 
 class CustomerResource extends Resource
@@ -49,41 +51,23 @@ class CustomerResource extends Resource
                         TextInput::make('daerah_customer')
                             ->label('Daerah Customer'),
                         Select::make('customer_class_id')
+                            ->relationship('kelas', 'name')
                             ->placeholder('cash/tempo')
-                            ->label('Kelas Pelanggan')
-                            ->searchable()
-                            ->options(CustomerClass::all()->pluck('name', 'id'))
                             ->searchable()
                             ->preload()
-                            ->createOptionForm([
-                                TextInput::make('name')
-                                    ->label('Kelas Pelanggan')
-                                    ->required()
-                                    ->maxLength(255),
-                            ])
-                            ->createOptionAction(fn ($action) => $action->modalWidth('sm'))
-                            ->createOptionUsing(function ($data) {
-                                $class = CustomerClass::create($data);
-                                return $class->id;
-                            }),
+                            ->createOptionForm(fn (Form $form) => CustomerClassResource::form($form) ?? [])
+                            ->editOptionForm(fn (Form $form, $get) => CustomerClassResource::form($form) ?? [])
+                            // ->createOptionAction(fn ($action) => $action->modalWidth('sm'))
+                            ->label('Kelas Pelanggan'),
                         Select::make('customer_category_id')
-                            ->label('Kategori Pelanggan')
+                            ->relationship('kategori_customer', 'name')
                             ->placeholder('toko/online')
                             ->searchable()
-                            ->options(CustomerCategory::all()->pluck('name', 'id'))
                             ->createOptionAction(fn ($action) => $action->modalWidth('sm'))
                             //memanggil form tambah
                             ->createOptionForm(fn (Form $form) => CustomerCategoryResource::form($form) ?? [])
-                            // //memanggil form edit harus ada relasi
-                            // ->relationship('kategori_customer')
-                            // // ->editOptionForm(fn (Form $form, $get) => CustomerCategoryResource::form($form) ?? [])
-                            // ->editOptionForm(fn (Form $form, $get) => CustomerClassResource::form($form)
-                            //     ->model(CustomerClass::find($get('customer_id'))) ?? [])
-                            //aksi untuk form
-                            ->createOptionUsing(function ($data) {
-                                $cus_cat = CustomerCategory::create($data);
-                                return $cus_cat->id;
-                            }),
+                            ->editOptionForm(fn (Form $form, $get) => CustomerCategoryResource::form($form) ?? [])
+                            ->label('Kategori Pelanggan'),
                         TextInput::make('sisa_limit_hutang')
                             ->label('Sisa Limit Hutang')
                             ->numeric()
@@ -206,13 +190,21 @@ class CustomerResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user = Auth::user();
+        $userId = $user->id;
         return $table
+            ->modifyQueryUsing(function (Builder $query) use ($userId) {
+                // filter jika bukan super_admin
+                if (!auth()->user()->hasAnyRole(['admin', 'super_admin'])) {
+                    $query->where('user_id', $userId);
+                }
+            })
             ->columns([
-                Tables\Columns\TextColumn::make('nama_customer')->label('Nama Customer')->searchable(),
-                Tables\Columns\TextColumn::make('jenis_badan_usaha')->label('Tipe Pelanggan')->searchable(),
-                Tables\Columns\TextColumn::make('daerah_customer')->label('Daerah Customer')->searchable(),
-                Tables\Columns\TextColumn::make('kelas.name')->label('Kelas')->searchable(),
-                Tables\Columns\TextColumn::make('kategori_customer.name')->label('Kategori')->searchable(),
+                TextColumn::make('nama_customer')->label('Nama Customer')->searchable(),
+                TextColumn::make('jenis_badan_usaha')->label('Tipe Pelanggan')->searchable(),
+                TextColumn::make('daerah_customer')->label('Daerah Customer')->searchable(),
+                TextColumn::make('kelas.name')->label('Kelas')->searchable(),
+                TextColumn::make('kategori_customer.name')->label('Kategori')->searchable(),
             ])
             ->filters([
                 // Add filters if necessary

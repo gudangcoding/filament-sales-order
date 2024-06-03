@@ -62,7 +62,7 @@ class Product extends Model implements HasMedia
     }
     public function satuan()
     {
-        return $this->hasMany(Satuan::class);
+        return $this->hasMany(Satuan::class, 'product_id');
     }
 
     public function scopeActive($query)
@@ -74,5 +74,10 @@ class Product extends Model implements HasMedia
     {
         $this->addMediaCollection('product')
             ->useDisk('public');
+    }
+
+    public function varians()
+    {
+        return $this->hasMany(Varian::class);
     }
 }
