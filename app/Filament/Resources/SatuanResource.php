@@ -6,9 +6,11 @@ use App\Filament\Resources\SatuanResource\Pages;
 use App\Filament\Resources\SatuanResource\RelationManagers;
 use App\Models\Satuan;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -24,12 +26,10 @@ class SatuanResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('type')
+
+                TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                    ->label('Nama Satuan'),
             ]);
     }
 
@@ -37,15 +37,13 @@ class SatuanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('type')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

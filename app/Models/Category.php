@@ -16,11 +16,11 @@ class Category extends Model
 
     public function products()
     {
-        return $this->hasMany(\App\Models\Product::class);
+        return $this->hasMany(Product::class);
     }
 
     public function team(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Team::class);
+        return $this->belongsTo(Team::class);
     }
 }

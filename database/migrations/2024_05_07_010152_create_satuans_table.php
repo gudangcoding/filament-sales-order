@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('team_id')->nullable()->constrained();
             $table->foreignId('user_id')->nullable()->constrained();
-            $table->foreignId('product_id')->nullable()->constrained();
+            // $table->foreignId('product_id')->nullable()->constrained();
             $table->bigInteger('parent_id')->nullable();
-            $table->string('type');
+            $table->string('type')->nullable();
             $table->string('name');
-            $table->string('price');
-            $table->string('qty');
+            $table->string('price')->nullable();
+            $table->string('qty')->nullable();
             $table->timestamps();
         });
     }

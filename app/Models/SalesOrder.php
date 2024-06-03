@@ -42,10 +42,10 @@ class SalesOrder extends Model
     {
         return $this->hasMany(SalesDetail::class, 'sales_order_id');
     }
-    public function SalesDetail()
-    {
-        return $this->hasMany(SalesDetail::class, 'sales_order_id');
-    }
+    // public function SalesDetail()
+    // {
+    //     return $this->hasMany(SalesDetail::class, 'sales_order_id');
+    // }
 
     public function customer()
     {
@@ -69,7 +69,7 @@ class SalesOrder extends Model
 
         static::saving(function ($model) {
             // unset($model->customer_class_id, $model->customer_category_id, $model->catatan);
-            //abaikan catatan saat menyimpan
+            //abaikan input catatan saat menyimpan
             unset($model->catatan);
         });
     }
